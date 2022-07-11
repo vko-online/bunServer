@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator typegraphql {
+  provider = "typegraphql-prisma"
+  output   = "../src/generated/type-graphql"
+}
+
+enum Identity {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum Looking {
+  MEN
+  WOMEN
+  OTHER
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id            String         @id @default(cuid())
+  phone         String         @unique
+  password      String // enable temporarily
+  dob           DateTime
+  name          String
+  identity      Identity
+  bio           String
+  looking       Looking
+  role          Role
+  country       String         @default("Kazakhstan")
+  city          String         @default("Almaty")
+  messages      Message[]      @relation(name: "UserMessages")
+  conversations Conversation[] @relation(name: "UserConversations")
+  interactions  Interaction[]  @relation(name: "UserInteractions")
+  interactors   Interaction[]  @relation(name: "UserInteractors")
+  images        File[]
+}
+
+model Verification {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  code      String
+  phone     String
+}
+
+enum Decision {
+  LIKE
+  DISLIKE
+  SKIP
+}
+
+model Interaction {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  decision  Decision
+  targetId  String
+  target    User     @relation(name: "UserInteractors", references: [id], fields: [targetId])
+  authorId  String
+  author    User     @relation(name: "UserInteractions", references: [id], fields: [authorId])
+}
+
+model Conversation {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  members   User[]    @relation(name: "UserConversations")
+  messages  Message[] @relation(name: "ConversationMessages")
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  createdAt      DateTime     @default(now())
+  content        String
+  authorId       String
+  author         User         @relation(name: "UserMessages", references: [id], fields: [authorId])
+  conversationId String
+  conversation   Conversation @relation(name: "ConversationMessages", references: [id], fields: [conversationId])
+}
+
+model File {
+  id     String  @id @default(cuid())
+  name   String
+  size   Int
+  path   String
+  type   String
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+}

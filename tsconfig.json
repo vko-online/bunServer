@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "lib": ["es2018", "esnext.asynciterable"],
+        "strictNullChecks": true,
+        "module": "CommonJS",
+        "moduleResolution": "node",
+        "strict": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "esModuleInterop": true,
+        "baseUrl": ".",
+        "paths": {
+            "src": ["src"]
+        }
+    },
+    "ts-node": {
+        "require": ["tsconfig-paths/register"]
+      }
+}
