@@ -1,5 +1,5 @@
 import { AuthChecker } from 'type-graphql'
-import { Context } from '../context'
+import { Context } from 'src/context'
 
 const authChecker: AuthChecker<Context> = async ({ context: { currentUserId } }, roles) => {
   if (roles.length === 0) {
