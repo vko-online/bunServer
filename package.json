@@ -3,7 +3,12 @@
   "scripts": {
     "start": "ts-node --transpile-only src/server",
     "dev": "ts-node-dev -r tsconfig-paths/register --transpile-only --respawn src/server",
-    "up": "docker-compose up -d"
+    "up": "docker-compose up -d",
+    "studio": "npx prisma studio",
+    "generate": "npx prisma generate",
+    "seed": "npx prisma db seed",
+    "push": "npx prisma db push",
+    "rethink": "open http://localhost:8080"
   },
   "dependencies": {
     "@prisma/client": "^4.0.0",
