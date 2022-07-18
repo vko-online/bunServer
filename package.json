@@ -2,7 +2,8 @@
   "name": "bun",
   "scripts": {
     "start": "ts-node --transpile-only src/server",
-    "dev": "ts-node-dev -r tsconfig-paths/register --transpile-only --respawn src/server"
+    "dev": "ts-node-dev -r tsconfig-paths/register --transpile-only --respawn src/server",
+    "up": "docker-compose up -d"
   },
   "dependencies": {
     "@prisma/client": "^4.0.0",
