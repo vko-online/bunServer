@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  rethinkdb:
+    image: rethinkdb:latest
+    ports:
+     - 28015:28015
+     - 29015:29015
+     - 8080:8080
+    volumes:
+     - ~/apps/rethinkdb:/data
+    command: rethinkdb --bind all
+  postgres:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    volumes:
+      - ~/apps/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=bunpassword
+      - POSTGRES_USER=bunadmin
+      - POSTGRES_DB=bundb
+    restart: always

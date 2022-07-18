@@ -25,7 +25,7 @@ export function createContext ({ req }: { req: express.Request }): Context {
     const verified = jwt.verify(token, process.env.JWT_SECRET as string)
     return ({
       prisma: _prisma,
-      currentUserId: verified.sub as string ?? null
+      currentUserId: verified as string ?? null
     })
   }
   return ({
