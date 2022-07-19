@@ -12,32 +12,24 @@ export interface Context {
   pubsub: RedisPubSub
 }
 
-export function createContext ({ req }: { req: express.Request }): Context {
+function buildContext (bearerToken: string | undefined | null | unknown): Context {
   let currentUserId = null
-  // if (req.)
-  const bearerToken = req.headers.authorization
   if (bearerToken != null) {
-    const token = bearerToken.replace('Bearer ', '')
+    const token = (bearerToken as string).replace('Bearer ', '')
     const verified = jwt.verify(token, process.env.JWT_SECRET as string)
     currentUserId = verified as string
   }
-  return ({
+  return {
     prisma: prisma,
     pubsub: redis,
     currentUserId
-  })
+  }
+}
+
+export function createContext ({ req }: { req: express.Request }): Context {
+  return buildContext(req.headers.authorization)
 }
 
 export function createWsContext (ctx: WsContext): Context {
-  let currentUserId = null
-  if (ctx?.connectionParams?.authentication != null) {
-    const token = (ctx.connectionParams.authentication as string).replace('Bearer ', '')
-    const verified = jwt.verify(token, process.env.JWT_SECRET as string)
-    currentUserId = verified as string
-  }
-  return ({
-    prisma: prisma,
-    pubsub: redis,
-    currentUserId
-  })
+  return buildContext(ctx?.connectionParams?.authentication)
 }
