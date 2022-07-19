@@ -1,7 +1,7 @@
 import { Upload, FileUpload } from 'graphql-upload'
 import { Context } from 'src/context'
 import { File } from 'src/generated/type-graphql'
-import { Arg, Ctx, Mutation, Resolver } from 'type-graphql'
+import { Arg, Authorized, Ctx, Mutation, Resolver } from 'type-graphql'
 import shortId from 'shortid'
 import { createWriteStream, unlink } from 'fs'
 import path from 'path'
@@ -12,6 +12,7 @@ import { ApolloError } from 'apollo-server-core'
 
 @Resolver()
 export default class ProfileResolver {
+  @Authorized()
   @Mutation(() => [File])
   async uploadImage (
     @Arg('input', () => [Upload]) input: FileUpload[],

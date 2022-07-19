@@ -1,4 +1,4 @@
-import { Args, Field, ArgsType, Resolver, Root, Subscription } from 'type-graphql'
+import { Args, Field, ArgsType, Resolver, Root, Subscription, Authorized } from 'type-graphql'
 import { redis } from 'src/services/redis'
 import { ITS_A_MATCH, NEW_MESSAGE } from 'src/constants/topics'
 import { withFilter } from 'graphql-subscriptions'
@@ -13,6 +13,7 @@ class GenericListenerArgs {
 
 @Resolver()
 export default class SubscriptionsResolver {
+  @Authorized()
   @Subscription(() => Interaction, {
     subscribe: withFilter(() => redis.asyncIterator(ITS_A_MATCH), (payload: Interaction, variables: GenericListenerArgs) => {
       return payload.authorId === variables.currentUserId
@@ -25,6 +26,7 @@ export default class SubscriptionsResolver {
     return payload
   }
 
+  @Authorized()
   @Subscription(() => MessageWithTargetIds, {
     subscribe: withFilter(() => redis.asyncIterator(NEW_MESSAGE), (payload: MessageWithTargetIds, variables: GenericListenerArgs) => {
       return payload.targetId === variables.currentUserId

@@ -2,7 +2,7 @@ import { NEW_MESSAGE } from 'src/constants/topics'
 import { Context } from 'src/context'
 import { Message } from 'src/generated/type-graphql'
 import { sendOrPublish } from 'src/services/broker'
-import { Arg, Ctx, Field, InputType, Mutation, ObjectType, Resolver } from 'type-graphql'
+import { Arg, Authorized, Ctx, Field, InputType, Mutation, ObjectType, Resolver } from 'type-graphql'
 
 @InputType()
 class ConversationInput {
@@ -27,6 +27,7 @@ export class MessageWithTargetIds {
 
 @Resolver()
 export default class ConversationResolver {
+  @Authorized()
   @Mutation(() => Message)
   async sendMessage (@Arg('input') input: ConversationInput, @Ctx() context: Context): Promise<Message> {
     const currentUser = await context.prisma.user.findFirst({
