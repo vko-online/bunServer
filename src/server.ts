@@ -7,7 +7,7 @@ import { WebSocketServer } from 'ws'
 import { useServer } from 'graphql-ws/lib/use/ws'
 import express from 'express'
 import { ApolloServer } from 'apollo-server-express'
-import { graphqlUploadExpress } from 'graphql-upload'
+import { graphqlUploadExpress, GraphQLUpload, Upload } from 'graphql-upload'
 import {
   ApolloServerPluginLandingPageGraphQLPlayground,
   ApolloServerPluginLandingPageDisabled,
@@ -37,14 +37,21 @@ import StateResolver from './resolvers/StateResolver'
 import SubscriptionsResolver from './resolvers/SubscriptionsResolver'
 import MatchmakingResolver from './resolvers/MatchmakingResolver'
 import ConversationResolver from './resolvers/ConversationResolver'
+import ProfileResolver from './resolvers/ProfileResolver'
 import 'src/enhancers/resolverEnhancers'
 import { startJobs } from 'src/services/jobs'
+import makeDir from 'make-dir'
+import { UPLOADS_PATH } from './constants/uploads'
+import { getAppUrl, getAppWsUrl } from './constants/env'
 
 async function main (): Promise<void> {
   await initRethinkDB()
 
+  await makeDir(UPLOADS_PATH)
+
   const schema = await buildSchema({
     // scalarsMap: [{ type: Scalars.VoidMock, scalar: Scalars.VoidResolver }],
+    scalarsMap: [{ scalar: GraphQLUpload, type: Upload }],
     resolvers: [
       UserCrudResolver,
       UserRelationsResolver,
@@ -61,7 +68,8 @@ async function main (): Promise<void> {
       StateResolver,
       SubscriptionsResolver,
       MatchmakingResolver,
-      ConversationResolver
+      ConversationResolver,
+      ProfileResolver
     ],
     emitSchemaFile: path.resolve(__dirname, './generated/schema.graphql'),
     validate: false,
@@ -73,6 +81,9 @@ async function main (): Promise<void> {
   app.use(graphqlUploadExpress())
   app.get('/ws', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'graphql-over-ws.html'))
+  })
+  app.get('/uploads/:filename', (req, res) => {
+    res.sendFile(path.join(UPLOADS_PATH, req.params.filename))
   })
   const httpServer = createServer(app)
   const wsServer = new WebSocketServer({
@@ -93,7 +104,7 @@ async function main (): Promise<void> {
       process.env.NODE_ENV === 'production'
         ? ApolloServerPluginLandingPageDisabled()
         : ApolloServerPluginLandingPageGraphQLPlayground({
-          subscriptionEndpoint: 'ws://localhost:3001/graphql'
+          subscriptionEndpoint: `ws://${process.env.HOST as string}:${process.env.WS_PORT as string}/graphql`
         }),
       // Proper shutdown for the HTTP server.
       ApolloServerPluginDrainHttpServer({ httpServer }),
@@ -118,9 +129,9 @@ async function main (): Promise<void> {
   startJobs()
 
   await new Promise<void>(resolve => app.listen({ port: 3000 }, resolve))
-  console.log(`🚀 Server ready at http://localhost:3000${server.graphqlPath}`)
+  console.log(`🚀 Server ready at ${getAppUrl()}${server.graphqlPath}`)
   await new Promise<void>(resolve => httpServer.listen(3001, resolve))
-  console.log('🚀 Subscriptions ready at ws://localhost:3001/graphql')
+  console.log(`🚀 Subscriptions ready at ${getAppWsUrl()}/graphql`)
 }
 
 main().catch(console.error)
