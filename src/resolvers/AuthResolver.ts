@@ -29,7 +29,7 @@ class AuthInput {
 @Resolver()
 export default class AuthResolver {
   @Mutation(() => AuthPayload)
-  async signIn (@Arg('input') input: AuthInput, @Ctx() context: Context): Promise<AuthPayload> {
+  async signIn (@Arg('input', { nullable: false }) input: AuthInput, @Ctx() context: Context): Promise<AuthPayload> {
     const user = await context.prisma.user.findFirst({ where: { phone: input.phone } })
 
     if (user != null) {
@@ -51,7 +51,7 @@ export default class AuthResolver {
       }
     })
     return {
-      token: jwt.sign(dbUser.id, process.env.JWT_SECRET as string, { expiresIn: '1800s' }),
+      token: jwt.sign(dbUser.id, process.env.JWT_SECRET as string),
       user: dbUser
     }
   }

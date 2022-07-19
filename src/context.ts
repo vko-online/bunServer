@@ -12,10 +12,11 @@ export interface Context {
   pubsub: RedisPubSub
 }
 
-function buildContext (bearerToken: string | undefined | null | unknown): Context {
+function buildContext (bearerToken: string | undefined | null): Context {
   let currentUserId = null
-  if (bearerToken != null) {
-    const token = (bearerToken as string).replace('Bearer ', '')
+  console.log('bearerToken', bearerToken)
+  if (bearerToken?.includes('Bearer') === true) {
+    const token = bearerToken.replace('Bearer ', '')
     const verified = jwt.verify(token, process.env.JWT_SECRET as string)
     currentUserId = verified as string
   }
@@ -31,5 +32,5 @@ export function createContext ({ req }: { req: express.Request }): Context {
 }
 
 export function createWsContext (ctx: WsContext): Context {
-  return buildContext(ctx?.connectionParams?.authentication)
+  return buildContext(ctx?.connectionParams?.authentication as string)
 }

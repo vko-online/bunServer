@@ -35,18 +35,6 @@ export default class ConversationResolver {
         id: context.currentUserId as string
       }
     })
-    const convo = await context.prisma.conversation.findFirst({
-      where: {
-        id: input.conversationId
-      },
-      select: {
-        members: {
-          select: {
-            id: true
-          }
-        }
-      }
-    })
 
     const msg = await context.prisma.message.create({
       data: {
@@ -59,6 +47,23 @@ export default class ConversationResolver {
         author: {
           connect: {
             id: context.currentUserId as string
+          }
+        }
+      }
+    })
+    const convo = await context.prisma.conversation.update({
+      where: {
+        id: input.conversationId
+      },
+      data: {
+        lastMessageAuthor: currentUser?.name,
+        lastMessageContent: msg.content,
+        lastMessageDate: msg.createdAt
+      },
+      select: {
+        members: {
+          select: {
+            id: true
           }
         }
       }

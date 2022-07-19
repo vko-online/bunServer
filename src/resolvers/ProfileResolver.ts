@@ -1,7 +1,7 @@
 import { Upload, FileUpload } from 'graphql-upload'
 import { Context } from 'src/context'
-import { File } from 'src/generated/type-graphql'
-import { Arg, Authorized, Ctx, Mutation, Resolver } from 'type-graphql'
+import { File, User } from 'src/generated/type-graphql'
+import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql'
 import shortId from 'shortid'
 import { createWriteStream, unlink } from 'fs'
 import path from 'path'
@@ -74,5 +74,15 @@ export default class ProfileResolver {
       returningFiles.push(dbFile)
     }
     return returningFiles
+  }
+
+  @Authorized()
+  @Query(() => User, { nullable: true })
+  async me (@Ctx() context: Context): Promise<User | null> {
+    return await context.prisma.user.findFirst({
+      where: {
+        id: context.currentUserId as string
+      }
+    })
   }
 }
