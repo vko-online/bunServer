@@ -31,7 +31,7 @@ interface UserLocationArrayResponse {
 const DB_NAME = 'bun_geolocation'
 const DB_TABLE = 'bun_positions'
 
-export async function init (): Promise<void> {
+export async function initRethinkDB (): Promise<void> {
   await r.connectPool()
   await initDatabase()
   await initTable()
@@ -76,7 +76,7 @@ async function initIndex (): Promise<void> {
     }).run()
 }
 
-export async function findById ({ id }: FindQuery): Promise<UserLocationResponse> {
+export async function findById ({ id }: FindQuery): Promise<UserLocationResponse | null> {
   const $r = r.db(DB_NAME).table(DB_TABLE)
   return await $r.get(id).run()
 }

@@ -1,12 +1,8 @@
 // import { prisma } from 'src/context'
-import { Interaction, Message, User } from 'src/generated/type-graphql'
+import { Interaction, User } from 'src/generated/type-graphql'
 import { sendPushNotification } from './expo-push'
 
-export async function itsAMatch (pushId: string, interaction: Interaction): Promise<void> {
-  throw new Error('not implemented')
-}
-
-export async function youHaveNewMessage (pushId: string, msg: Message): Promise<void> {
+export async function youHaveAMatch (pushId: string, interaction: Interaction): Promise<void> {
   throw new Error('not implemented')
 }
 

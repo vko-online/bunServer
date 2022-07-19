@@ -1,7 +1,7 @@
 import { Context } from 'src/context'
 import { User } from 'src/generated/type-graphql'
 import { Resolver, InputType, Field, Arg, Ctx, Query, Authorized } from 'type-graphql'
-import { findNearest, findById } from 'src/services/state'
+import { findNearest, findById } from 'src/services/rethink'
 import { UserInputError } from 'apollo-server-core'
 
 @InputType()
@@ -73,6 +73,7 @@ export default class DiscoverResolver {
     }
     const userLocations = await findNearest({ lat: userlocation.location.coordinates[0], lon: userlocation.location.coordinates[1] })
 
+    console.log('userLocations', userLocations)
     return await context.prisma.user.findMany({
       where: {
         city: user?.city,

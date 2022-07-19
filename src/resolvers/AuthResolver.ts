@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { Resolver, Mutation, InputType, ObjectType, Field, Arg, Ctx } from 'type-graphql'
 import { AuthenticationError } from 'apollo-server-core'
-import { VoidMock } from 'graphql-scalars'
+// import { VoidMock } from 'graphql-scalars'
 
 const saltRounds = 10
 
@@ -56,8 +56,8 @@ export default class AuthResolver {
     }
   }
 
-  @Mutation(() => VoidMock, { nullable: true })
-  async signOut (@Ctx() context: Context): Promise<void> {
+  @Mutation(() => Boolean, { nullable: true })
+  async signOut (@Ctx() context: Context): Promise<boolean> {
     await context.prisma.user.update({
       where: {
         id: context.currentUserId as string
@@ -69,5 +69,6 @@ export default class AuthResolver {
         pushId: null
       }
     })
+    return true
   }
 }

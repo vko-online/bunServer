@@ -1,4 +1,4 @@
-import { prisma } from 'src/context'
+import { prisma } from 'src/services/prisma'
 import { currentlyOnline } from './push-notifications'
 
 export async function currentlyOnlineRunner (): Promise<void> {

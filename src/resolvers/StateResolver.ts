@@ -1,7 +1,7 @@
 import { Context } from 'src/context'
 import { Resolver, InputType, Field, Arg, Ctx, Authorized, Mutation } from 'type-graphql'
-import { addPosition } from 'src/services/state'
-import { VoidMock } from 'graphql-scalars'
+import { addPosition } from 'src/services/rethink'
+// import { VoidMock } from 'graphql-scalars'
 
 @InputType()
 class StateInput {
@@ -18,8 +18,8 @@ class StateInput {
 @Resolver()
 export default class StateResolver {
   @Authorized()
-  @Mutation(() => VoidMock, { nullable: true }) // prisma resolver
-  async updateState (@Arg('input', type => StateInput) input: StateInput, @Ctx() context: Context): Promise<void> {
+  @Mutation(() => Boolean, { nullable: true }) // prisma resolver
+  async updateState (@Arg('input', type => StateInput) input: StateInput, @Ctx() context: Context): Promise<boolean> {
     await context.prisma.user.update({
       where: {
         id: context.currentUserId as string
@@ -36,6 +36,7 @@ export default class StateResolver {
       lon: input.longitude,
       online: input.online
     })
+    return true
   }
   // todo: add rethindb resolver
 }

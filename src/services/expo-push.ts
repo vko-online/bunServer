@@ -5,7 +5,7 @@
 // app will be blocked, so need to remove token from user table
 
 import { Expo, ExpoPushErrorReceipt, ExpoPushMessage, ExpoPushSuccessTicket, ExpoPushTicket } from 'expo-server-sdk'
-import { removePushId } from './helpers'
+import { removePushId } from './prisma'
 // Create a new Expo SDK client
 // optionally providing an access token if you have enabled push security
 const expo = new Expo({ accessToken: process.env.EXPO_ACCESS_TOKEN })
