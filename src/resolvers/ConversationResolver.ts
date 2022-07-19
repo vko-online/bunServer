@@ -47,8 +47,6 @@ export default class ConversationResolver {
       }
     })
 
-    console.log('convo', convo)
-
     const msg = await context.prisma.message.create({
       data: {
         conversation: {

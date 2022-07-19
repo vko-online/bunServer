@@ -73,7 +73,6 @@ export default class DiscoverResolver {
     }
     const userLocations = await findNearest({ lat: userlocation.location.coordinates[0], lon: userlocation.location.coordinates[1] })
 
-    console.log('userLocations', userLocations)
     return await context.prisma.user.findMany({
       where: {
         city: user?.city,

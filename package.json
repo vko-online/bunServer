@@ -8,7 +8,8 @@
     "generate": "npx prisma generate",
     "seed": "npx prisma db seed",
     "push": "npx prisma db push",
-    "rethink": "open http://localhost:8080"
+    "rethink": "open http://localhost:8080",
+    "ws": "open http://localhost:3000/ws"
   },
   "dependencies": {
     "@prisma/client": "^4.0.0",
