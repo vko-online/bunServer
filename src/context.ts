@@ -32,5 +32,5 @@ export function createContext ({ req }: { req: express.Request }): Context {
 }
 
 export function createWsContext (ctx: WsContext): Context {
-  return buildContext(ctx?.connectionParams?.authentication as string)
+  return buildContext(ctx?.connectionParams?.authorization as string)
 }

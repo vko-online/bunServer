@@ -1,8 +1,8 @@
 import { NEW_MESSAGE } from 'src/constants/topics'
 import { Context } from 'src/context'
-import { Message } from 'src/generated/type-graphql'
+import { Conversation, Message } from 'src/generated/type-graphql'
 import { sendOrPublish } from 'src/services/broker'
-import { Arg, Authorized, Ctx, Field, InputType, Mutation, ObjectType, Resolver } from 'type-graphql'
+import { Arg, Authorized, Ctx, Field, InputType, Mutation, ObjectType, Query, Resolver } from 'type-graphql'
 
 @InputType()
 class ConversationInput {
@@ -25,8 +25,75 @@ export class MessageWithTargetIds {
   message!: Message
 }
 
+@ObjectType()
+export class BatchPayload {
+  @Field()
+  count!: number
+}
+
 @Resolver()
 export default class ConversationResolver {
+  @Authorized()
+  @Query(() => [Conversation])
+  async myConversations (@Ctx() context: Context): Promise<Conversation[]> {
+    return await context.prisma.conversation.findMany({
+      where: {
+        members: {
+          some: {
+            id: context.currentUserId as string
+          }
+        }
+      },
+      orderBy: {
+        lastMessageDate: 'desc'
+      }
+    })
+  }
+
+  @Authorized()
+  @Mutation(() => BatchPayload)
+  async markAsRead (@Arg('messageIds', () => [String], { nullable: false }) messageIds: string[], @Ctx() context: Context): Promise<BatchPayload> {
+    return await context.prisma.message.updateMany({
+      where: {
+        id: {
+          in: messageIds
+        },
+        NOT: {
+          readByIds: {
+            hasEvery: [context.currentUserId as string]
+          }
+        }
+      },
+      data: {
+        readByIds: {
+          push: context.currentUserId as string
+        }
+      }
+    })
+  }
+
+  @Authorized()
+  @Mutation(() => BatchPayload)
+  async markAsReceived (@Arg('messageIds', () => [String], { nullable: false }) messageIds: string[], @Ctx() context: Context): Promise<BatchPayload> {
+    return await context.prisma.message.updateMany({
+      where: {
+        id: {
+          in: messageIds
+        },
+        NOT: {
+          receivedByIds: {
+            hasEvery: [context.currentUserId as string]
+          }
+        }
+      },
+      data: {
+        receivedByIds: {
+          push: context.currentUserId as string
+        }
+      }
+    })
+  }
+
   @Authorized()
   @Mutation(() => Message)
   async sendMessage (@Arg('input') input: ConversationInput, @Ctx() context: Context): Promise<Message> {
@@ -48,6 +115,12 @@ export default class ConversationResolver {
           connect: {
             id: context.currentUserId as string
           }
+        },
+        readByIds: {
+          set: [context.currentUserId as string]
+        },
+        receivedByIds: {
+          set: [context.currentUserId as string]
         }
       }
     })
@@ -76,7 +149,10 @@ export default class ConversationResolver {
       const messageWithTargetIds: MessageWithTargetIds = {
         targetId: targetId,
         conversationId: input.conversationId,
-        message: msg
+        message: {
+          ...msg,
+          createdAt: new Date(msg.createdAt) // todo: temp hack for now while scalars not added
+        }
       }
       await sendOrPublish({
         topic: NEW_MESSAGE,

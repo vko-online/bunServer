@@ -34,9 +34,9 @@ model User {
   bio           String?
   pushId        String?
   looking       Identity?
-  online        Boolean? @default(false)
-  latitude  Float?
-  longitude Float?
+  online        Boolean?       @default(false)
+  latitude      Float?
+  longitude     Float?
   role          Role?          @default(USER)
   country       String         @default("Kazakhstan")
   city          String         @default("Almaty")
@@ -57,7 +57,7 @@ model Interaction {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   decision  Decision
-  matched   Boolean @default(false)
+  matched   Boolean  @default(false)
   targetId  String
   target    User     @relation(name: "UserInteractors", references: [id], fields: [targetId])
   authorId  String
@@ -65,13 +65,13 @@ model Interaction {
 }
 
 model Conversation {
-  id        String    @id @default(cuid())
-  createdAt DateTime  @default(now())
-  members   User[]    @relation(name: "UserConversations")
-  messages  Message[] @relation(name: "ConversationMessages")
+  id                 String    @id @default(cuid())
+  createdAt          DateTime  @default(now())
+  members            User[]    @relation(name: "UserConversations")
+  messages           Message[] @relation(name: "ConversationMessages")
   lastMessageContent String?
-  lastMessageDate DateTime?
-  lastMessageAuthor String?
+  lastMessageDate    DateTime?
+  lastMessageAuthor  String?
 }
 
 model Message {
@@ -80,6 +80,8 @@ model Message {
   content        String
   authorId       String
   author         User         @relation(name: "UserMessages", references: [id], fields: [authorId])
+  readByIds      String[]
+  receivedByIds  String[]
   conversationId String
   conversation   Conversation @relation(name: "ConversationMessages", references: [id], fields: [conversationId])
 }

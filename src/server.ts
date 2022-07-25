@@ -17,7 +17,7 @@ import * as path from 'path'
 import { createContext, createWsContext } from './context'
 import { redis } from 'src/services/redis'
 import AuthResolver from './resolvers/AuthResolver'
-// import * as Scalars from 'graphql-scalars'
+import { DateTimeResolver, DateTimeMock, DateTimeTypeDefinition } from 'graphql-scalars'
 
 import {
   UserCrudResolver,
@@ -51,7 +51,13 @@ async function main (): Promise<void> {
 
   const schema = await buildSchema({
     // scalarsMap: [{ type: Scalars.VoidMock, scalar: Scalars.VoidResolver }],
-    scalarsMap: [{ scalar: GraphQLUpload, type: Upload }],
+    scalarsMap: [{
+      scalar: GraphQLUpload,
+      type: Upload
+    }, {
+      scalar: DateTimeResolver,
+      type: Date
+    }],
     resolvers: [
       UserCrudResolver,
       UserRelationsResolver,
@@ -74,6 +80,7 @@ async function main (): Promise<void> {
     emitSchemaFile: path.resolve(__dirname, './generated/schema.graphql'),
     validate: false,
     authChecker,
+    dateScalarMode: 'isoDate',
     pubSub: redis
   })
 
