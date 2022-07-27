@@ -17,7 +17,7 @@ import * as path from 'path'
 import { createContext, createWsContext } from './context'
 import { redis } from 'src/services/redis'
 import AuthResolver from './resolvers/AuthResolver'
-import { DateTimeResolver, DateTimeMock, DateTimeTypeDefinition } from 'graphql-scalars'
+import { DateTimeResolver } from 'graphql-scalars'
 
 import {
   UserCrudResolver,

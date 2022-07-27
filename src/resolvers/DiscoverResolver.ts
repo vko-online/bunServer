@@ -11,6 +11,9 @@ class DiscoverInput {
 
   @Field(() => Number, { nullable: true })
   to?: number
+
+  @Field(() => Boolean, { nullable: true, defaultValue: false })
+  online?: boolean
 }
 
 @Resolver()
@@ -30,6 +33,7 @@ export default class DiscoverResolver {
       const now = new Date()
       const to = new Date(now.getFullYear() - input.to, 0, 1)
       dobFilter = {
+        ...dobFilter,
         gte: to
       }
     }

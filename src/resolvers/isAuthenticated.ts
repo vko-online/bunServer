@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { User } from 'src/generated/type-graphql'
-import { prisma } from 'src/context'
+import { prisma } from 'src/services/prisma'
 
 export default async function isAuthenticated (token?: string): Promise<User | null> {
   try {
