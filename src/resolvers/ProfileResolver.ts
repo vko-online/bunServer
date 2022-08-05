@@ -5,10 +5,19 @@ import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql'
 import shortId from 'shortid'
 import { createWriteStream, unlink } from 'fs'
 import path from 'path'
-import { UPLOADS_URL } from 'src/constants/uploads'
+import { UPLOADS_PATH_ABS, UPLOADS_URL } from 'src/constants/uploads'
 import { ApolloError } from 'apollo-server-core'
 
 // should upload by 1 or batch?
+
+const deleteFile = async (url: string): Promise<boolean> => await new Promise((resolve, reject) => {
+  return unlink(url, (err) => {
+    if (err != null) {
+      return reject(err)
+    }
+    return resolve(true)
+  })
+})
 
 @Resolver()
 export default class ProfileResolver {
@@ -21,6 +30,7 @@ export default class ProfileResolver {
     const returningFiles: File[] = []
     for (const item of input) {
       const { createReadStream, mimetype, filename } = await item
+      console.log('mimetype, filename', mimetype, filename)
       const stream = createReadStream()
       const storedFileName = `${shortId.generate()}-${filename}`
       // const storedFileUrl = new URL(storedFileName, base)
@@ -74,6 +84,35 @@ export default class ProfileResolver {
       returningFiles.push(dbFile)
     }
     return returningFiles
+  }
+
+  @Authorized()
+  @Mutation(() => File, { nullable: true })
+  async deleteImage (@Arg('id', () => String, { nullable: false }) id: string, @Ctx() context: Context): Promise<File | null> {
+    const file = await context.prisma.file.findFirst({
+      where: {
+        id: id
+      }
+    })
+
+    if (file != null) {
+      await deleteFile(UPLOADS_PATH_ABS(file.name))
+    }
+
+    await context.prisma.user.update({
+      where: {
+        id: context.currentUserId as string
+      },
+      data: {
+        images: {
+          delete: {
+            id: id
+          }
+        }
+      }
+    })
+
+    return file
   }
 
   @Authorized()
